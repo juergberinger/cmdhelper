@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 This module provides tools for writing command line scripts
-with a consistent style, set of command line options, and
+with a consistent style, default set of command line options, and
 common approach to logging.
 
 Typical usage:
@@ -17,7 +17,7 @@ Typical usage:
     ...
 """
 __author__ = 'Juerg Beringer'
-__version__ = '0.2.0'
+__version__ = '0.2.1'
 
 __all__ = [ 'CmdHelper', 'CmdError', 'cmdLine', 'handleError',
             'debug', 'warning', 'info', 'error', 'critical',
