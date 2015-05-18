@@ -38,7 +38,7 @@ except Exception as e:
 Running the above code with --help will produce the following output:
 
 ````
-sage: example.py [-h] [--version] [-i] [-v] [--debug] [--noscreen]
+usage: example.py [-h] [--version] [-i] [-v] [--debug] [--noscreen]
                   [--logfile LOGFILE] [--loglevel LOGLEVEL]
                   [--logseparator LOGSEPARATOR]
                   [--logtimestampfmt LOGTIMESTAMPFMT]
