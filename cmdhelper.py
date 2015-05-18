@@ -17,11 +17,11 @@ Typical usage:
     ...
 """
 __author__ = 'Juerg Beringer'
-__version__ = '0.2'
+__version__ = '0.2.0'
 
 __all__ = [ 'CmdHelper', 'CmdError', 'cmdLine', 'handleError',
-           'debug', 'warning', 'info', 'error', 'critical',
-           'confirm', 'run']
+            'debug', 'warning', 'info', 'error', 'critical',
+            'confirm', 'run']
 
 import sys
 import os
@@ -32,6 +32,7 @@ import logging
 from logging import debug, info, warning, error, critical
 import smtplib
 from email.mime.text import MIMEText
+
 
 #
 # Configure logging. Provide a NullHandler to suppress any
@@ -300,7 +301,7 @@ class CmdHelper:
         self.options = None
         self.args = None
 
-        if self.parseTool=='argparse':
+        if self.parseTool == 'argparse':
             import argparse
             self.parser = argparse.ArgumentParser(description=description, epilog=epilog)
             self.add_argument('--version', action='version', version=version)
@@ -365,8 +366,8 @@ class CmdHelper:
 
     def add_option(self, *args, **kwargs):
         """Add optparse or argparse option depending on CmdHelper initialization."""
-        if self.parseTool=='argparse':
-            if args and args[0]=='':   # no short option
+        if self.parseTool == 'argparse':
+            if args and args[0] == '':   # no short option
                 args = args[1:]
             return self.parser.add_argument(*args, **kwargs)
         else:
@@ -385,7 +386,7 @@ class CmdHelper:
         options and arguments. In other words, parse() returns the
         same kind of that is returned by the corresponding parser's
         parse_args() function."""
-        if self.parseTool=='argparse':
+        if self.parseTool == 'argparse':
             self.options = self.parser.parse_args()   # called options for backward compat.
         else:
             (self.options, self.args) = self.parser.parse_args()
@@ -440,7 +441,7 @@ class CmdHelper:
             if getattr(self.options, 'noscreen', False):
                 self.errorHandler.setLevel(9999)   # disable logging to errorHandler
 
-        if self.parseTool=='argparse':
+        if self.parseTool == 'argparse':
             return self.options
         else:
             return (self.options, self.args)
