@@ -9,7 +9,7 @@ setup(
     name = 'cmdhelper',
     version = '0.2.1',
     description = 'Python utility for writing command line scripts with consistent look and feel.',
-    long_description = read('README.md'),
+    long_description = read('README.rst'),
     url = 'https://github.com/physonymus/cmdhelper',
     license = 'MIT',
     author = 'Juerg Beringer',
