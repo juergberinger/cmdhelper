@@ -179,7 +179,7 @@ class ConsoleFormatter(logging.Formatter):
         # The code below assumes that redirected stdout always comes from
         # the root logger
         if record.name != 'root':
-            self._fmt = '%(levelname)s:%(name)s: %(message)s'
+            self._fmt = '%(levelname)-7s %(name)-30s %(message)s'
         else:
             if record.levelno > logging.STDOUT:
                 self._fmt = '%(levelname)s: %(message)s'
@@ -242,7 +242,7 @@ class FileFormatter(logging.Formatter):
 
 class LevelFilter:
 
-    """Logging filter to out messages depending on the log level."""
+    """Logging filter to output messages depending on the log level."""
 
     def __init__(self, levelList, suppressFlag=True):
         """levelList is a list of log levels that should be
@@ -303,7 +303,9 @@ class CmdHelper:
 
         if self.parseTool == 'argparse':
             import argparse
-            self.parser = argparse.ArgumentParser(description=description, epilog=epilog)
+            self.parser = argparse.ArgumentParser(description=description,
+                                                  epilog=epilog,
+                                                  formatter_class=argparse.RawTextHelpFormatter)
             self.add_argument('--version', action='version', version=version)
         else:
             import optparse
@@ -374,7 +376,7 @@ class CmdHelper:
             return self.parser.add_option(*args, **kwargs)
 
     def add_argument(self, *args, **kwargs):
-        """Add optparse argument."""
+        """Add argparse argument."""
         return self.parser.add_argument(*args, **kwargs)
 
     def parse(self):
@@ -420,7 +422,8 @@ class CmdHelper:
         info('')
         if self.options.logseparator:
             info(self.options.logseparator)
-        info('%s %s' % (time.asctime(), cmdLine()))
+        #info('%s %s' % (time.asctime(), cmdLine()))
+        info(cmdLine())
         info('')
 
         # Configure console logging level
