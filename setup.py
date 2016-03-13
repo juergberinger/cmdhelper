@@ -7,7 +7,7 @@ def read(fname):
 
 setup(
     name = 'cmdhelper',
-    version = '0.2.1',
+    version = '0.2.2',
     description = 'Python utility for writing command line scripts with consistent look and feel.',
     long_description = read('README.rst'),
     url = 'https://github.com/physonymus/cmdhelper',
@@ -17,7 +17,7 @@ setup(
     py_modules = ['cmdhelper'],
     include_package_data = True,
     classifiers = [
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'Environment :: Console',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',

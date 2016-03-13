@@ -17,7 +17,7 @@ Typical usage:
     ...
 """
 __author__ = 'Juerg Beringer'
-__version__ = '0.2.1'
+__version__ = '0.2.2'
 
 __all__ = [ 'CmdHelper', 'CmdError', 'cmdLine', 'handleError',
             'debug', 'warning', 'info', 'error', 'critical',
