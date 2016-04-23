@@ -1,5 +1,7 @@
 from setuptools import setup
 
+from cmdhelper import __version__
+
 def read(fname):
     """Return contents of file with name fname."""
     with open(fname, 'r') as f:
@@ -7,7 +9,7 @@ def read(fname):
 
 setup(
     name = 'cmdhelper',
-    version = '0.2.2',
+    version = __version__,
     description = 'Python utility for writing command line scripts with consistent look and feel.',
     long_description = read('README.rst'),
     url = 'https://github.com/physonymus/cmdhelper',
