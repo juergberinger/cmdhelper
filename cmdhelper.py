@@ -541,7 +541,7 @@ def run(cmd, printOutput=False,
     p = subprocess.Popen(cmd,
                          stdout=subprocess.PIPE,
                          stderr=subprocess.STDOUT,
-                         shell=isinstance(cmd, str),
+                         shell=isinstance(cmd, (str,unicode)),
                          universal_newlines=True)
     for line in iter(p.stdout.readline, ""):
         outputBuffer.append(line.strip('\n'))
