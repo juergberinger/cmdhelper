@@ -1,5 +1,7 @@
 # Makefile for cmdhelper.py
 
+CURRENTVERSION = `python -c 'import cmdhelper; print cmdhelper.__version__'`
+
 build:
 	@echo 'Building ...'
 	@python setup.py sdist
@@ -32,7 +34,9 @@ upload:
 	@firefox https://pypi.python.org/pypi
 
 tag:
-	@echo 'Commit and tag new version ("v... as uploaded to PyPI") ...'
+	@echo 'Commit and tag new version ...'
 	@git diff
-	@git commit -a
-	@git tag -a v`python -c 'import cmdhelper; print cmdhelper.__version__'`
+	@git commit -a -m "Version $(CURRENTVERSION)"
+	@git tag -a -m "v$(CURRENTVERSION) as uploaded to PyPI" v$(CURRENTVERSION)
+	@git push
+	@git push origin v$(CURRENTVERSION)
