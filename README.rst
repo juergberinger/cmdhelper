@@ -39,7 +39,7 @@ arguments might include:
         # processing goes here
 
     except Exception as e:
-         handleError(e)
+         handleError(e,options.debug)
 
 Running the above code with –help will produce the following output:
 
