@@ -1,6 +1,7 @@
 # Makefile for cmdhelper.py
 
-CURRENTVERSION = `python -c 'import cmdhelper; print cmdhelper.__version__'`
+PKGNAME = cmdhelper
+CURRENTVERSION = `python -c 'import $(PKGNAME); print $(PKGNAME).__version__'`
 
 build:
 	@echo 'Building ...'
@@ -8,19 +9,19 @@ build:
 	@echo ''
 	@echo 'Testing installation ...'
 	@virtualenv --clear test
-	@. test/bin/activate; cd test; pip install ../dist/`ls ../dist | tail -1`; pip show cmdhelper; python -c 'import cmdhelper; print "\nFound version",cmdhelper.__version__'
+	@. test/bin/activate; cd test; pip install ../dist/`ls ../dist | tail -1`; pip show $(PKGNAME); python -c 'import $(PKGNAME); print "\nFound version",$(PKGNAME).__version__'
 	@rm -rf test
 
 newversion:
-	@bumpversion patch cmdhelper.py
-	@python -c 'import cmdhelper; print "New version is",cmdhelper.__version__'
+	@bumpversion patch $(PKGNAME).py
+	@python -c 'import $(PKGNAME); print "New version is",$(PKGNAME).__version__'
 
 test-upload:
 	@python setup.py sdist upload -r test
 	@echo ''
 	@echo 'Testing installation from test PyPI ...'
 	@virtualenv --clear test
-	@. test/bin/activate; cd test; pip install -i https://testpypi.python.org/pypi cmdhelper; pip show cmdhelper; python -c 'import cmdhelper; print "\nFound version",cmdhelper.__version__'
+	@. test/bin/activate; cd test; pip install -i https://testpypi.python.org/pypi $(PKGNAME); pip show $(PKGNAME); python -c 'import $(PKGNAME); print "\nFound version",$(PKGNAME).__version__'
 	@rm -rf test
 	@firefox https://testpypi.python.org/pypi
 
@@ -29,7 +30,7 @@ upload:
 	@echo ''
 	@echo 'Testing installation from PyPI ...'
 	@virtualenv --clear test
-	@. test/bin/activate; cd test; pip install cmdhelper; pip show cmdhelper; python -c 'import cmdhelper; print "\nFound version",cmdhelper.__version__'
+	@. test/bin/activate; cd test; pip install $(PKGNAME); pip show $(PKGNAME); python -c 'import $(PKGNAME); print "\nFound version",$(PKGNAME).__version__'
 	@rm -rf test
 	@firefox https://pypi.python.org/pypi
 
