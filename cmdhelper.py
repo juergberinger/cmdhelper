@@ -522,17 +522,47 @@ def run(cmd, printOutput=False,
         dryrun=None):
     """Run cmd and return (status,output,parsedOutput).
 
-    Run cmd and return the exit status and command output, unless
-    dryrun is True. In that case the command is only logged but not
-    executed.  cmd may either be a string, or a list of executable and
-    args.  output is the full command output combined from stdout and
-    stderr.  parsedOutput is the subset of the output that matches the
-    regular expressions passed in parseForRegEx. If exceptionOnError
-    is true and cmd exits with a non-zero status, an Exception is
-    raised. If printOutputIfParsed or printErrorsIfParsed are set and
-    there is parsedOutput, all output is printed or the matching lines
-    are logged at the error level, respectively. The command being run
-    is logged at the debug level."""
+    Unless dryrun is set True, cmd is run using subprocess.Popen. It
+    returns the exit status from cmd, its output, and any output found
+    by searching for the regular expression parseForRegEx. cmd is
+    logged at the debug level.
+
+    The parameters are:
+
+    cmd                  The command to be executed in either a string
+                         or a sequence of program arguments. If cmd is a
+                         string (str or unicode), it will be executed through
+                         a shell (see subprocess for a discussion of associated
+                         security risks).
+
+    printOutput          specifies if output is written to stdout
+                         (default: False).
+
+    exceptionOnError     specifies if a non-zero exit status of cmd should
+                         raise an Exception (default: False).
+
+    warningOnError       specifies whether to log a warning in case of a
+                         non-zero exit status of cmd (default: True).
+
+    parseForRegEx        If not None, search cmd output for regular expression
+                         (default: None).
+
+    regExFlags           Any regular expression flags used with parseForRegEx
+                         (default: 0).
+
+    printOutputIfParsed  specifies if any matches found by parseForRegEx
+                         should be printed to stdout (default: False).
+
+    printErrorsIfParsed  specifies if any matches found by parseForRegEx
+                         should be logged as error (default: False).
+
+    exceptionIfParsed    specifies if an Exception should be raised if
+                         parseForRegEx finds any matches (default: False).
+
+    dryrun               If set True, the cmd is only logged to debug
+                         and nothing is run. Returns (0,'',None) in this
+                         case (default: False).
+    """
     if dryrun:
         debug('would run cmd: %s' % cmd)
         return (0, '', None)
