@@ -33,10 +33,12 @@ arguments might include:
     cmdHelper = CmdHelper('argparse', __version__)
     cmdHelper.add_argument('cmd', help='command')
     cmdHelper.add_argument('args', help='command arguments', nargs='*')
+    cmdHelper.add_option('-x', '--example', dest='value', default=None, help='sample option')
     options = cmdHelper.parse()
 
     try:
         # processing goes here
+        pass
 
     except Exception as e:
          handleError(e,options.debug)
@@ -48,7 +50,7 @@ Running the above code with –help will produce the following output:
     usage: example.py [-h] [--version] [-i] [-v] [--debug] [--noscreen]
                       [--logfile LOGFILE] [--loglevel LOGLEVEL]
                       [--logseparator LOGSEPARATOR]
-                      [--logtimestampfmt LOGTIMESTAMPFMT]
+                      [--logtimestampfmt LOGTIMESTAMPFMT] [-x VALUE]
                       cmd [args [args ...]]
 
     positional arguments:
@@ -69,4 +71,5 @@ Running the above code with –help will produce the following output:
                             message to write to logfile at beginning of new log
       --logtimestampfmt LOGTIMESTAMPFMT
                             timestamp format string (in logging formatter format)
-
+      -x VALUE, --example VALUE
+                            sample option

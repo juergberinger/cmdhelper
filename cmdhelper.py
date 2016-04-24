@@ -7,14 +7,23 @@ common approach to logging.
 Typical usage:
 
     from cmdhelper import *
+
     cmdHelper = CmdHelper('argparse', __version__, 'Sample script')
+    cmdHelper.add_argument('cmd', help='command')
+    cmdHelper.add_argument('args', help='command arguments', nargs='*')
     cmdHelper.add_option('-x', '--example', dest='value', default=None, help='sample option')
-    ...
-    args = cmdHelper.parse()
+    options = cmdHelper.parse()
+
     debug('start processing')
     print 'Normal output'
     info('more details for verbose mode')
-    ...
+
+    try:
+        # processing goes here
+        pass
+
+    except Exception as e:
+         handleError(e,options.debug)
 """
 __author__ = 'Juerg Beringer'
 __version__ = '0.2.3'
