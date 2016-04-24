@@ -41,3 +41,4 @@ tag:
 	@git tag -a -m "v$(CURRENTVERSION) as uploaded to PyPI" v$(CURRENTVERSION)
 	@git push
 	@git push origin v$(CURRENTVERSION)
+	@firefox https://github.com/physonymus/cmdhelper
