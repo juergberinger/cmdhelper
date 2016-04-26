@@ -12,6 +12,10 @@ cmdhelper provides:
 -  Setup of logging with the possibility to copy stdout or stderr into
    the logfile.
 
+-  Possibility to e-mail log messages upon completion with an option
+   to send the e-mail only if a log message with a severity at or
+   above a trigger level was recorded.
+
 -  Definition of a set of default options, including options to set
    verbosity and logging options.
 
@@ -50,7 +54,9 @@ Running the above code with –help will produce the following output:
     usage: example.py [-h] [--version] [-i] [-v] [--debug] [--noscreen]
                       [--logfile LOGFILE] [--loglevel LOGLEVEL]
                       [--logseparator LOGSEPARATOR]
-                      [--logtimestampfmt LOGTIMESTAMPFMT] [-x VALUE]
+                      [--logtimestampfmt LOGTIMESTAMPFMT]  [--emailto EMAILTO]
+                      [--emailsubject EMAILSUBJECT] [--emaillevel EMAILLEVEL]
+                      [--emailtriglevel EMAILTRIGLEVEL] [-x VALUE]
                       cmd [args [args ...]]
 
     positional arguments:
@@ -65,11 +71,17 @@ Running the above code with –help will produce the following output:
       --debug               debugging output
       --noscreen            disable logging output to screen
       --logfile LOGFILE     write logging information to this file (default: )
-      --loglevel LOGLEVEL   logging level for logfile (default: INFO, unless
-                            --debug is given)
+      --loglevel LOGLEVEL   logging level for logfile (default: INFO or DEBUG)
       --logseparator LOGSEPARATOR
                             message to write to logfile at beginning of new log
       --logtimestampfmt LOGTIMESTAMPFMT
                             timestamp format string (in logging formatter format)
+      --emailto EMAILTO     email address receiving any log messages
+      --emailsubject EMAILSUBJECT
+                            subject for log e-mails
+      --emaillevel EMAILLEVEL
+                            logging level for e-mails (default: WARNING)
+      --emailtriglevel EMAILTRIGLEVEL
+                            trigger level for sending e-mails (default: None)
       -x VALUE, --example VALUE
                             sample option

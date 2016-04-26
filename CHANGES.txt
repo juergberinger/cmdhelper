@@ -1,0 +1,19 @@
+v0.2.5
+- add options to e-mail log messages
+- option to send e-mail only if message at trigger severity (or above) is logged
+- improve documentation
+
+v0.2.4
+- improve examples
+
+v0.2.3
+- allow unicode in cmd strings
+- add Makefile to simplify uploading to PyPI
+- add debugFlag to handleError example
+
+v0.2.2
+- improve message formatting
+- improve documentation
+
+v0.2.1
+- initial public version

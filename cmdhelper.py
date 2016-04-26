@@ -35,6 +35,8 @@ __all__ = [ 'CmdHelper', 'CmdError', 'cmdLine', 'handleError',
 import sys
 import os
 import subprocess
+import socket
+import getpass
 import re
 import time
 import logging
@@ -61,6 +63,18 @@ except ImportError:
 logging.getLogger().addHandler(NullHandler())
 logging.STDOUT = 25
 logging.addLevelName(logging.STDOUT, 'STDOUT')
+
+
+def getLogLevelNo(level):
+    """Return numerical log level or raise ValueError.
+
+    A valid level is either an integer or a string such as WARNING etc."""
+    if isinstance(level,(int,long)):
+        return level
+    try:
+        return(int(logging.getLevelName(level.upper())))
+    except:
+        raise ValueError('illegal loglevel %s' % level)
 
 
 class CmdError(Exception):
@@ -148,16 +162,30 @@ class MyStreamHandler(logging.StreamHandler):
 class BufferingSMTPHandler(logging.handlers.BufferingHandler):
 
     """Logging handler that buffers messages and e-mails them once more
-    than a given number of messages have been received."""
+    than maxMessagesPerEmail messages have been received."""
 
-    def __init__(self, fromAddr, toAddr, subject, maxMessagesPerEmail=4096):
+    def __init__(self, fromAddr, toAddr, subject, maxMessagesPerEmail=8192, triggerLevelNo=None):
         logging.handlers.BufferingHandler.__init__(self, maxMessagesPerEmail)
         self.fromAddr = fromAddr
         self.toAddr = toAddr
         self.subject = subject
+        self.triggerLevelNo = triggerLevelNo
+        self.triggered = (self.triggerLevelNo is None)
+
+    def emit(self, record):
+        """Emit record after checking if message triggers later sending of e-mail."""
+        if self.triggerLevelNo is not None and record.levelno>=self.triggerLevelNo:
+            self.triggered = True
+        logging.handlers.BufferingHandler.emit(self,record)
 
     def flush(self):
-        if len(self.buffer) > 0:
+        """Send messages by e-mail.
+
+        The sending of messages is suppressed if a trigger severity
+        level has been set and none of the received messages was at
+        that level or above. In that case the messages are
+        discarded. Empty e-mails are discarded."""
+        if self.triggered and len(self.buffer) > 0:
             # Do not send empty e-mails
             text = []
             for record in self.buffer:
@@ -176,7 +204,7 @@ class BufferingSMTPHandler(logging.handlers.BufferingHandler):
             smtp = smtplib.SMTP('localhost')
             smtp.sendmail(self.fromAddr, [self.toAddr], msg.as_string())
             smtp.quit()
-            self.buffer = []
+        self.buffer = []
 
 
 class ConsoleFormatter(logging.Formatter):
@@ -271,21 +299,49 @@ class CmdHelper:
 
     """CmdHelper class to setup option parsing and logging.
 
-    parseTool must be either optparse or argparse, and depending on
-    it's value either an optparse.OptionParser or an
-    argparse.ArgumentParser option parser will be
-    instantiated. Initializes logging and redirects sys.stdout to go
-    through logging if redirectStdOut is True.  If separateStdErr is
-    True, everything except for standard output will be written to
-    sys.stderr; otherwise sys.stdout is used for all console
-    output. User arguments (argparse only) and options can be defined
+    The constructs accepts the following parameters:
+
+    parseTool          Must be present, and must be either 'optparse'
+                       or 'argparse' for using optparse.OptionParser
+                       or argparse.ArgumentParser, respectively.
+
+    version            Version info.
+
+    description        Description of the command line script.
+
+    redirectStdOut     Redirect sys.stdout to be logged at custom
+                       level STDOUT.
+
+    separateStdErr     If True, everything except for standard
+                       output will be written to sys.stderr; otherwise
+                       all console output will go to sys.stdout.
+
+    hasLogFile         Whether to add options for log files.
+
+    hasEmail           Whether to add options for e-mailing logs.
+
+    hasInteractive     Whether to add -i option to go to an interactive
+                       Python shell after script completion.
+
+    hasBatch           Whether to add --batch option.
+
+    hasDryRun          Whether to add --dryrun option.
+
+    logFile            Default log file.
+
+    logSeparator       Default string to separate logs from different
+                       invocation of the script.
+
+    logTimestampFmt    Default time stamp format.
+
+    User arguments (argparse only) and options can be defined
     by either directly calling the OptionParser or ArgumentParser
     object via CmdHelper.parser, or using the utility methods
     CmdHelper.add_option and CmdHelper.add_argument."""
 
     def __init__(self, parseTool, version=None,
                  description=None, epilog=None,
-                 redirectStdOut=True, separateStdErr=True, hasLogFile=True,
+                 redirectStdOut=True, separateStdErr=True, hasLogFile=True, hasEmail=True,
                  hasInteractive=True, hasBatch=False, hasDryRun=False,
                  logFile='', logSeparator=None, logTimestampFmt=None):
         if not parseTool in ('optparse','argparse'):
@@ -307,6 +363,7 @@ class CmdHelper:
         self.consoleHandler = None
         self.errorHandler = None
         self.fileHandler = None
+        self.emailHandler = None
         self.options = None
         self.args = None
 
@@ -345,14 +402,26 @@ class CmdHelper:
                                    default=os.path.expandvars(logFile),
                                    help='write logging information to this file (default: %s)' % logFile)
             self.add_option('', '--loglevel', dest='loglevel',
-                                   default='INFO',
-                                   help='logging level for logfile (default: INFO, unless --debug is given)')
+                                   default=None,
+                                   help='logging level for logfile (default: INFO or DEBUG)')
             self.add_option('', '--logseparator', dest='logseparator',
                                    default=logSeparator,
                                    help='message to write to logfile at beginning of new log')
             self.add_option('', '--logtimestampfmt', dest='logtimestampfmt',
                                    default=logTimestampFmt,
                                    help='timestamp format string (in logging formatter format)')
+
+        if hasEmail:
+            self.add_option('', '--emailto', dest='emailto', default=None,
+                            help='email address receiving any log messages')
+            self.add_option('', '--emailsubject', dest='emailsubject', default=None,
+                            help='subject for log e-mails')
+            self.add_option('', '--emaillevel', dest='emaillevel',
+                            default='WARNING',
+                            help='logging level for e-mails (default: WARNING)')
+            self.add_option('', '--emailtriglevel', dest='emailtriglevel',
+                            default=None,
+                            help='trigger level for sending e-mails (default: None)')
 
         # Root logger
         self.logger = logging.getLogger()
@@ -410,30 +479,57 @@ class CmdHelper:
             pass
 
         # Configure logging to file
-        if getattr(self.options, 'logfile', None):
+        if getattr(self.options,'logfile',None):
             self.fileHandler = MyStreamHandler(open(self.options.logfile, 'a'))
             self.fileHandler.setFormatter(FileFormatter(self.options.logtimestampfmt))
-            if self.options.debug:
-                self.fileHandler.setLevel(logging.DEBUG)
-            else:
-                try:
-                    self.fileHandler.setLevel(int(self.options.loglevel))
-                except ValueError:
-                    try:
-                        self.fileHandler.setLevel(
-                            getattr(logging, self.options.loglevel.upper()))
-                    except AttributeError:
-                        error('illegal loglevel: %s' % self.options.loglevel)
             self.logger.addHandler(self.fileHandler)
+            if self.options.loglevel is None:
+                if self.options.debug:
+                    self.options.loglevel = 'DEBUG'
+                else:
+                    self.options.loglevel = 'INFO'
+            try:
+                self.fileHandler.setLevel(getLogLevelNo(self.options.loglevel))
+            except:
+                self.fileHandler.setLevel(logging.INFO)
+                error('illegal loglevel: %s',self.options.loglevel)
 
-        # Log command being executed (this goes only to self.fileHandler,
-        # consoleHandler is still set to level STDOUT)
+        # Log command being executed. This goes only to self.fileHandler, because
+        # at this point self.emailHandler and consoleHandler are intentionally not yet
+        # configured (consoleHandler is still set to level STDOUT).
         info('')
         if self.options.logseparator:
             info(self.options.logseparator)
         #info('%s %s' % (time.asctime(), cmdLine()))
         info(cmdLine())
         info('')
+
+        # Configure logging to e-mail
+        if getattr(self.options,'emailto',None):
+            hostname = socket.gethostname()
+            fromAddr = '%s@%s' % (getpass.getuser(),hostname)
+            if self.options.emailsubject:
+                subject = self.options.emailsubject
+            else:
+                subject = 'Report from %s (%s)' % (cmdLine(True),hostname)
+            if self.options.emailtriglevel is not None:
+                try:
+                    triggerLevelNo = getLogLevelNo(self.options.emailtriglevel)
+                except:
+                    triggerLevelNo = None
+                    error('illegal email trigger level %s' % self.options.emailtriglevel)
+            else:
+                triggerLevelNo = None
+            self.emailHandler = BufferingSMTPHandler(fromAddr,self.options.emailto,subject,
+                                                     triggerLevelNo=triggerLevelNo)
+            self.emailHandler.setFormatter(ConsoleFormatter())
+            self.emailHandler.setLevel(logging.WARNING)
+            self.logger.addHandler(self.emailHandler)
+            try:
+                self.emailHandler.setLevel(getLogLevelNo(self.options.emaillevel))
+            except:
+                self.emailHandler.setLevel(logging.WARNING)
+                error('illegal emaillevel %s', self.options.emaillevel)
 
         # Configure console logging level
         # NOTE: do this after logging command being executed, so that we don't get a logseparator
@@ -544,33 +640,29 @@ def run(cmd, printOutput=False,
                          a shell (see subprocess for a discussion of associated
                          security risks).
 
-    printOutput          specifies if output is written to stdout
-                         (default: False).
+    printOutput          Specifies if output is written to stdout.
 
-    exceptionOnError     specifies if a non-zero exit status of cmd should
-                         raise an Exception (default: False).
+    exceptionOnError     Specifies if a non-zero exit status of cmd should
+                         raise an Exception.
 
-    warningOnError       specifies whether to log a warning in case of a
-                         non-zero exit status of cmd (default: True).
+    warningOnError       Specifies whether to log a warning in case of a
+                         non-zero exit status of cmd.
 
-    parseForRegEx        If not None, search cmd output for regular expression
-                         (default: None).
+    parseForRegEx        If not None, search cmd output for regular expression.
 
-    regExFlags           Any regular expression flags used with parseForRegEx
-                         (default: 0).
+    regExFlags           Any regular expression flags used with parseForRegEx.
 
-    printOutputIfParsed  specifies if any matches found by parseForRegEx
-                         should be printed to stdout (default: False).
+    printOutputIfParsed  Specifies if any matches found by parseForRegEx
+                         should be printed to stdout.
 
-    printErrorsIfParsed  specifies if any matches found by parseForRegEx
-                         should be logged as error (default: False).
+    printErrorsIfParsed  Specifies if any matches found by parseForRegEx
+                         should be logged as error.
 
-    exceptionIfParsed    specifies if an Exception should be raised if
-                         parseForRegEx finds any matches (default: False).
+    exceptionIfParsed    Specifies if an Exception should be raised if
+                         parseForRegEx finds any matches.
 
-    dryrun               If set True, the cmd is only logged to debug
-                         and nothing is run. Returns (0,'',None) in this
-                         case (default: False).
+    dryrun               If set True, cmd is only logged to debug and
+                         nothing is run. Returns (0,'',None) in this case.
     """
     if dryrun:
         debug('would run cmd: %s' % cmd)
