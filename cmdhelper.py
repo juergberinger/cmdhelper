@@ -26,7 +26,7 @@ Typical usage:
          handleError(e,options.debug)
 """
 __author__ = 'Juerg Beringer'
-__version__ = '0.2.4'
+__version__ = '0.2.5'
 
 __all__ = [ 'CmdHelper', 'CmdError', 'cmdLine', 'handleError',
             'debug', 'warning', 'info', 'error', 'critical',
