@@ -669,11 +669,16 @@ def run(cmd, printOutput=False,
         return (0, '', None)
     debug('running cmd: %s' % cmd)
     outputBuffer = []
+    interactive =  os.environ.get('PYTHONINSPECT',None)
+    if interactive:
+        del os.environ['PYTHONINSPECT']
     p = subprocess.Popen(cmd,
                          stdout=subprocess.PIPE,
                          stderr=subprocess.STDOUT,
                          shell=isinstance(cmd, (str,unicode)),
                          universal_newlines=True)
+    if interactive:
+        os.environ['PYTHONINSPECT'] = interactive
     for line in iter(p.stdout.readline, ""):
         outputBuffer.append(line.strip('\n'))
         if printOutput:

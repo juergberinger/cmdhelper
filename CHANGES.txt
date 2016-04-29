@@ -1,3 +1,6 @@
+v0.2.6
+- reset PYTHONINSPECT before invoking subprocess in run() so python commands terminate properly
+
 v0.2.5
 - add options to e-mail log messages
 - option to send e-mail only if message at trigger severity (or above) is logged
