@@ -594,12 +594,16 @@ def handleError(exception, debugFlag=False, abortFlag=True):
 def confirm(msg, acceptByDefault=False, exitCodeOnAbort=1, batch=False):
     """Get user confirmation or abort execution.
 
+    confirm returns True (if user confirms) or False (if user declines
+    and exitCodeOnAbort is None) or aborts with sys.exit(exitCodeOnAbort)
+    (if user declines and exitCodeOnAbort is not None).
+
     Depending on acceptByDefault, the default answer (if user presses
-    Return only), is to accept or abort.  " - are you sure [y] ?" or
-    " - are you sure [n] ?" will be appended to msg, depending on the
-    value of acceptByDefault. If the user does not accept,
-    sys.exit(exitCodeOnAbort) will be called.  If batch is True,
-    returns immediately."""
+    Return only), is to accept or abort.  " - are you sure [y] ?" or "
+    - are you sure [n] ?" will be appended to msg, depending on the
+    value of acceptByDefault.
+
+    If batch is True, returns immediately."""
     if batch:
         return
     if acceptByDefault:
@@ -612,10 +616,13 @@ def confirm(msg, acceptByDefault=False, exitCodeOnAbort=1, batch=False):
         if reply == '':
             reply = 'y' if acceptByDefault else 'n'
         if reply == 'y':
-            return
+            return True
         elif reply == 'n':
-            error('Program execution aborted by user')
-            sys.exit(exitCodeOnAbort)
+            if exitCodeOnAbort is None:
+                return False
+            else:
+                error('Program execution aborted by user')
+                sys.exit(exitCodeOnAbort)
         else:
             print "ERROR: Invalid reply - please enter either 'y' or 'n', or press just enter to accept default\n"
 
