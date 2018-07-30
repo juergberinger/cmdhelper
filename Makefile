@@ -23,7 +23,7 @@ test-upload:
 	@virtualenv --clear test
 	@. test/bin/activate; cd test; pip install -i https://testpypi.python.org/pypi $(PKGNAME); pip show $(PKGNAME); python -c 'import $(PKGNAME); print "\nFound version",$(PKGNAME).__version__'
 	@rm -rf test
-	@firefox https://testpypi.python.org/pypi
+	@firefox https://test.pypi.org/project/cmdhelper/
 
 upload:
 	@python setup.py sdist upload -r pypi
@@ -32,7 +32,7 @@ upload:
 	@virtualenv --clear test
 	@. test/bin/activate; cd test; pip install $(PKGNAME); pip show $(PKGNAME); python -c 'import $(PKGNAME); print "\nFound version",$(PKGNAME).__version__'
 	@rm -rf test
-	@firefox https://pypi.python.org/pypi
+	@firefox https://pypi.org/project/cmdhelper/
 
 tag:
 	@echo 'Commit and tag new version ...'
