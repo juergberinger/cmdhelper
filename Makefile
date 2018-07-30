@@ -13,7 +13,7 @@ build:
 	@rm -rf test
 
 newversion:
-	@bumpversion patch $(PKGNAME).py
+	@bumpversion patch
 	@python -c 'import $(PKGNAME); print "New version is",$(PKGNAME).__version__'
 
 test-upload:
