@@ -30,7 +30,7 @@ __version__ = '0.2.7'
 
 __all__ = [ 'CmdHelper', 'CmdError', 'cmdLine', 'handleError',
             'debug', 'warning', 'info', 'error', 'critical',
-            'confirm', 'run']
+            'confirm', 'run', 'abort']
 
 import sys
 import os
@@ -710,6 +710,12 @@ def run(cmd, printOutput=False,
     if exceptionIfParsed and parsedOutput:
         raise Exception('Errors found in command output - please check')
     return (status, output, parsedOutput)
+
+
+def abort(errorMsg, exitCode=1):
+    """Issue error message and abort executiion."""
+    error(errorMsg)
+    sys.exit(exitCode)
 
 
 #
