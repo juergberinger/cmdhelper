@@ -713,7 +713,7 @@ def run(cmd, printOutput=False,
 
 
 def abort(errorMsg, exitCode=1):
-    """Issue error message and abort executiion."""
+    """Issue error message and abort execution."""
     error(errorMsg)
     sys.exit(exitCode)
 
