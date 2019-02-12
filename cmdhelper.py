@@ -46,6 +46,13 @@ from email.mime.text import MIMEText
 
 
 #
+# Default encoding. The default encoding is used when standard output/error
+# are redirected to streams that have no encoding defined.
+#
+encoding = 'utf-8'
+
+
+#
 # Configure logging. Provide a NullHandler to suppress any
 # logging output in case the user doesn't use logging. In
 # Python 2.7 and later, NullHandler is included in logging.
@@ -131,7 +138,10 @@ class MyStreamHandler(logging.StreamHandler):
         try:
             msg = self.format(record)
             terminator = getattr(record, 'terminator', '\n')
-            self.stream.write(msg)
+            if hasattr(self.stream, "encoding") and self.stream.encoding:
+                self.stream.write(msg)
+            else:
+                self.stream.write(msg.encode(encoding))
             if terminator is not None:
                 self.stream.write(terminator)
             self.flush()
