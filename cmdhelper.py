@@ -137,11 +137,17 @@ class MyStreamHandler(logging.StreamHandler):
            newline will be written to the output stream."""
         try:
             msg = self.format(record)
-            terminator = getattr(record, 'terminator', '\n')
-            if hasattr(self.stream, "encoding") and self.stream.encoding:
-                self.stream.write(msg)
+            if isinstance(msg,unicode):
+                if hasattr(self.stream, "encoding") and self.stream.encoding:
+                    # Stream should take care of encoding, but do it explicitly to
+                    # prevent bug in Python 2.6 - see
+                    # https://stackoverflow.com/questions/8016236/python-unicode-handling-differences-between-print-and-sys-stdout-write
+                    self.stream.write(msg.encode(self.stream.encoding))
+                else:
+                    self.stream.write(msg.encode(encoding))
             else:
-                self.stream.write(msg.encode(encoding))
+                self.stream.write(msg)
+            terminator = getattr(record, 'terminator', '\n')
             if terminator is not None:
                 self.stream.write(terminator)
             self.flush()
