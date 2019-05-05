@@ -30,7 +30,7 @@ __version__ = '0.2.10'
 
 __all__ = [ 'CmdHelper', 'CmdError', 'cmdLine', 'handleError',
             'debug', 'warning', 'info', 'error', 'critical',
-            'confirm', 'run', 'abort']
+            'confirm', 'run', 'abort', 'enableHistory']
 
 import sys
 import os
@@ -491,6 +491,7 @@ class CmdHelper:
         try:
             if self.options.interactive:
                 os.environ['PYTHONINSPECT'] = '1'
+                enableHistory()
         except AttributeError:
             pass
 
@@ -732,6 +733,33 @@ def abort(errorMsg, exitCode=1):
     """Issue error message and abort execution."""
     error(errorMsg)
     sys.exit(exitCode)
+
+
+def enableHistory():
+    """Enable history for interactive execution with -i option.
+    
+    The code below is adapted from /etc/pythonstart on OpenSuSE Leap 42.3."""
+    import atexit
+    import os
+    import readline
+    import rlcompleter
+    historyPath = os.path.expanduser("~/.cmdhistory")
+
+    def save_history(historyPath=historyPath):
+        import readline
+        try:
+            readline.write_history_file(historyPath)
+        except:
+            pass
+
+    if os.path.exists(historyPath):
+        readline.set_history_length(10000)
+        readline.read_history_file(historyPath)
+
+    atexit.register(save_history)
+    readline.parse_and_bind('tab: complete')
+        
+    del os, atexit, readline, rlcompleter, save_history, historyPath
 
 
 #
