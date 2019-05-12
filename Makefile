@@ -9,7 +9,7 @@ build:
 	@echo ''
 	@echo 'Testing installation ...'
 	@virtualenv --clear test
-	@. test/bin/activate; cd test; pip install ../dist/`ls ../dist | tail -1`; pip show $(PKGNAME); python -c 'import $(PKGNAME); print "\nFound version",$(PKGNAME).__version__'
+	@. test/bin/activate; cd test; pip install ../dist/`ls -tr ../dist | tail -1`; pip show $(PKGNAME); python -c 'import $(PKGNAME); print "\nFound version",$(PKGNAME).__version__'
 	@rm -rf test
 
 newversion:
