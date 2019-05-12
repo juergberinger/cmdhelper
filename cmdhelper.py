@@ -376,6 +376,7 @@ class CmdHelper:
         self.logSeparator = logSeparator
         self.logTimestampFmt = logTimestampFmt
 
+        self.historyPath = "~/.cmdhelper_history"   # default history path, set to None to disable history
         self.consoleHandler = None
         self.errorHandler = None
         self.fileHandler = None
@@ -491,7 +492,7 @@ class CmdHelper:
         try:
             if self.options.interactive:
                 os.environ['PYTHONINSPECT'] = '1'
-                enableHistory()
+                enableHistory(self.historyPath)
         except AttributeError:
             pass
 
@@ -735,31 +736,40 @@ def abort(errorMsg, exitCode=1):
     sys.exit(exitCode)
 
 
-def enableHistory():
+def enableHistory(historyPath):
     """Enable history for interactive execution with -i option.
     
+    If historyPath is None, disable history and editing.
     The code below is adapted from /etc/pythonstart on OpenSuSE Leap 42.3."""
-    import atexit
-    import os
-    import readline
-    import rlcompleter
-    historyPath = os.path.expanduser("~/.cmdhistory")
-
-    def save_history(historyPath=historyPath):
+    if not historyPath:
+        return
+    historyPath = os.path.expanduser(historyPath)
+    if os.path.isdir(historyPath):
+        error('enableHistory requires path to file, not directory %s',historyPath)
+        return
+    try:
         import readline
-        try:
-            readline.write_history_file(historyPath)
-        except:
-            pass
+    except ImportError:
+        warning('Module readline not available - no Python command editing or history')
+    else:
+        import rlcompleter
+        import atexit
 
-    if os.path.exists(historyPath):
-        readline.set_history_length(10000)
-        readline.read_history_file(historyPath)
+        def save_history(historyPath=historyPath):
+            import readline
+            try:
+                readline.write_history_file(historyPath)
+            except:
+                pass
 
-    atexit.register(save_history)
-    readline.parse_and_bind('tab: complete')
-        
-    del os, atexit, readline, rlcompleter, save_history, historyPath
+        if os.path.exists(historyPath):
+            readline.set_history_length(10000)
+            readline.read_history_file(historyPath)
+
+        atexit.register(save_history)
+        readline.parse_and_bind('tab: complete')
+
+        del atexit, readline, rlcompleter, save_history, historyPath
 
 
 #
