@@ -21,9 +21,9 @@ test-upload:
 	@echo ''
 	@echo 'Testing installation from test PyPI ...'
 	@virtualenv --clear test
-	@. test/bin/activate; cd test; pip install -i https://testpypi.python.org/pypi $(PKGNAME); pip show $(PKGNAME); python -c 'import $(PKGNAME); print "\nFound version",$(PKGNAME).__version__'
+	@. test/bin/activate; cd test; pip install -i https://test.pypi.org $(PKGNAME); pip show $(PKGNAME); python -c 'import $(PKGNAME); print "\nFound version",$(PKGNAME).__version__'
 	@rm -rf test
-	@firefox https://test.pypi.org/project/cmdhelper/
+	@firefox https://test.pypi.org/project/$(PKGNAME)/
 
 upload:
 	@python setup.py sdist upload -r pypi
@@ -32,7 +32,7 @@ upload:
 	@virtualenv --clear test
 	@. test/bin/activate; cd test; pip install $(PKGNAME); pip show $(PKGNAME); python -c 'import $(PKGNAME); print "\nFound version",$(PKGNAME).__version__'
 	@rm -rf test
-	@firefox https://pypi.org/project/cmdhelper/
+	@firefox https://pypi.org/project/$(PKGNAME)/
 
 tag:
 	@echo 'Commit and tag new version ...'
