@@ -692,7 +692,7 @@ def run(cmd, printOutput=False,
     p = subprocess.Popen(cmd,
                          stdout=subprocess.PIPE,
                          stderr=subprocess.STDOUT,
-                         shell=isinstance(cmd, str),
+                         shell=isinstance(cmd, (str, bytes)),
                          universal_newlines=True)
     if interactive:
         os.environ['PYTHONINSPECT'] = interactive
