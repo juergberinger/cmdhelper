@@ -8,9 +8,9 @@ build:
 	@python setup.py sdist
 	@echo ''
 	@echo 'Testing installation ...'
-	@virtualenv --clear test
-	@. test/bin/activate; cd test; pip install ../dist/`ls -tr ../dist | tail -1`; pip show $(PKGNAME); python -c 'import $(PKGNAME); print "\nFound version",$(PKGNAME).__version__'
-	@rm -rf test
+	@virtualenv --clear dist_test
+	@. dist_test/bin/activate; cd dist_test; pip install ../dist/`ls -tr ../dist | tail -1`; pip show $(PKGNAME); python -c 'import $(PKGNAME); print "\nFound version",$(PKGNAME).__version__'
+	@rm -rf dist_test
 
 newversion:
 	@bumpversion patch
