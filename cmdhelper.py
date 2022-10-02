@@ -25,12 +25,16 @@ Typical usage:
     except Exception as e:
          handleError(e,options.debug)
 """
+from __future__ import print_function
+from builtins import input
+from builtins import str
+from builtins import range
 __author__ = 'Juerg Beringer'
-__version__ = '0.2.11'
+__version__ = '0.3.0'
 
-__all__ = [ 'CmdHelper', 'CmdError', 'cmdLine', 'handleError',
-            'debug', 'warning', 'info', 'error', 'critical',
-            'confirm', 'run', 'abort', 'enableHistory']
+__all__ = ['CmdHelper', 'CmdError', 'cmdLine', 'handleError',
+           'debug', 'warning', 'info', 'error', 'critical',
+           'confirm', 'run', 'abort', 'enableHistory']
 
 import sys
 import os
@@ -38,7 +42,6 @@ import subprocess
 import socket
 import getpass
 import re
-import time
 import logging
 from logging import debug, info, warning, error, critical
 import smtplib
@@ -76,11 +79,11 @@ def getLogLevelNo(level):
     """Return numerical log level or raise ValueError.
 
     A valid level is either an integer or a string such as WARNING etc."""
-    if isinstance(level,(int,long)):
+    if isinstance(level, int):
         return level
     try:
-        return(int(logging.getLevelName(level.upper())))
-    except:
+        return int(logging.getLevelName(level.upper()))
+    except Exception:
         raise ValueError('illegal loglevel %s' % level)
 
 
@@ -137,23 +140,14 @@ class MyStreamHandler(logging.StreamHandler):
            newline will be written to the output stream."""
         try:
             msg = self.format(record)
-            if isinstance(msg,unicode):
-                if hasattr(self.stream, "encoding") and self.stream.encoding:
-                    # Stream should take care of encoding, but do it explicitly to
-                    # prevent bug in Python 2.6 - see
-                    # https://stackoverflow.com/questions/8016236/python-unicode-handling-differences-between-print-and-sys-stdout-write
-                    self.stream.write(msg.encode(self.stream.encoding))
-                else:
-                    self.stream.write(msg.encode(encoding))
-            else:
-                self.stream.write(msg)
+            self.stream.write(msg)
             terminator = getattr(record, 'terminator', '\n')
             if terminator is not None:
                 self.stream.write(terminator)
             self.flush()
         except (KeyboardInterrupt, SystemExit):
             raise
-        except:
+        except Exception:
             self.handleError(record)
 
     def flush(self):
@@ -190,9 +184,9 @@ class BufferingSMTPHandler(logging.handlers.BufferingHandler):
 
     def emit(self, record):
         """Emit record after checking if message triggers later sending of e-mail."""
-        if self.triggerLevelNo is not None and record.levelno>=self.triggerLevelNo:
+        if self.triggerLevelNo is not None and record.levelno >= self.triggerLevelNo:
             self.triggered = True
-        logging.handlers.BufferingHandler.emit(self,record)
+        logging.handlers.BufferingHandler.emit(self, record)
 
     def flush(self):
         """Send messages by e-mail.
@@ -231,17 +225,16 @@ class ConsoleFormatter(logging.Formatter):
     def format(self, record):
         # The code below assumes that redirected stdout always comes from
         # the root logger
-        if record.name != 'root':
-            self._fmt = '%(levelname)-7s %(name)-30s %(message)s'
-        else:
+        fmt = '%(levelname)-7s %(name)-30s %(message)s'   # format for root logger
+        if record.name == 'root':
             if record.levelno > logging.STDOUT:
-                self._fmt = '%(levelname)s: %(message)s'
+                fmt = '%(levelname)s: %(message)s'
             else:
                 if record.levelno == logging.DEBUG:
-                    self._fmt = '... %(message)s'
+                    fmt = '... %(message)s'
                 else:
-                    self._fmt = '%(message)s'
-        return logging.Formatter.format(self, record)
+                    fmt = '%(message)s'
+        return logging.Formatter(fmt).format(record)
 
 
 class FileFormatter(logging.Formatter):
@@ -293,14 +286,14 @@ class FileFormatter(logging.Formatter):
             return logging.Formatter.format(self, record)
 
 
-class LevelFilter:
-
+class LevelFilter(logging.Filter):
     """Logging filter to output messages depending on the log level."""
 
     def __init__(self, levelList, suppressFlag=True):
         """levelList is a list of log levels that should be
            either filtered out (suppressFlag=True, default) or pass
            the filter (suppressFlag=False)."""
+        logging.Filter.__init__(self)
         self.levelList = levelList
         self.suppressFlag = suppressFlag
 
@@ -360,7 +353,7 @@ class CmdHelper:
                  redirectStdOut=True, separateStdErr=True, hasLogFile=True, hasEmail=True,
                  hasInteractive=True, hasBatch=False, hasDryRun=False,
                  logFile='', logSeparator=None, logTimestampFmt=None):
-        if not parseTool in ('optparse','argparse'):
+        if parseTool not in ('optparse', 'argparse'):
             raise ValueError('parseTool must be either "optparse" or "argparse"')
         self.parseTool = parseTool
         self.version = version
@@ -395,38 +388,38 @@ class CmdHelper:
             self.parser = optparse.OptionParser(usage=description, version=version)
         if hasInteractive:
             self.add_option('-i', '--interactive', dest='interactive',
-                                   action='store_true', default=False,
-                                   help='enter interactive Python at completion')
+                            action='store_true', default=False,
+                            help='enter interactive Python at completion')
         self.add_option('-v', '--verbose', dest='verbose',
-                               action='store_true', default=False,
-                               help='verbose output')
+                        action='store_true', default=False,
+                        help='verbose output')
         self.add_option('', '--debug', dest='debug',
-                               action='store_true', default=False,
-                               help='debugging output')
+                        action='store_true', default=False,
+                        help='debugging output')
         if hasDryRun:
             self.add_option('', '--dryrun', dest='dryrun',
-                                   action='store_true', default=False,
-                                   help='only show what would be done without --dryrun')
+                            action='store_true', default=False,
+                            help='only show what would be done without --dryrun')
         if hasBatch:
             self.add_option('', '--batch', dest='batch',
-                                   action='store_true', default=False,
-                                   help='batch mode (skips confirmations)')
+                            action='store_true', default=False,
+                            help='batch mode (skips confirmations)')
         if hasLogFile:
             self.add_option('', '--noscreen', dest='noscreen',
-                                   action='store_true', default=False,
-                                   help='disable logging output to screen')
+                            action='store_true', default=False,
+                            help='disable logging output to screen')
             self.add_option('', '--logfile', dest='logfile',
-                                   default=os.path.expandvars(logFile),
-                                   help='write logging information to this file (default: %s)' % logFile)
+                            default=os.path.expandvars(logFile),
+                            help='write logging information to this file (default: %s)' % logFile)
             self.add_option('', '--loglevel', dest='loglevel',
-                                   default=None,
-                                   help='logging level for logfile (default: INFO or DEBUG)')
+                            default=None,
+                            help='logging level for logfile (default: INFO or DEBUG)')
             self.add_option('', '--logseparator', dest='logseparator',
-                                   default=logSeparator,
-                                   help='message to write to logfile at beginning of new log')
+                            default=logSeparator,
+                            help='message to write to logfile at beginning of new log')
             self.add_option('', '--logtimestampfmt', dest='logtimestampfmt',
-                                   default=logTimestampFmt,
-                                   help='timestamp format string (in logging formatter format)')
+                            default=logTimestampFmt,
+                            help='timestamp format string (in logging formatter format)')
 
         if hasEmail:
             self.add_option('', '--emailto', dest='emailto', default=None,
@@ -497,7 +490,7 @@ class CmdHelper:
             pass
 
         # Configure logging to file
-        if getattr(self.options,'logfile',None):
+        if getattr(self.options, 'logfile', None):
             self.fileHandler = MyStreamHandler(open(self.options.logfile, 'a'))
             self.fileHandler.setFormatter(FileFormatter(self.options.logtimestampfmt))
             self.logger.addHandler(self.fileHandler)
@@ -510,7 +503,7 @@ class CmdHelper:
                 self.fileHandler.setLevel(getLogLevelNo(self.options.loglevel))
             except:
                 self.fileHandler.setLevel(logging.INFO)
-                error('illegal loglevel: %s',self.options.loglevel)
+                error('illegal loglevel: %s', self.options.loglevel)
 
         # Log command being executed. This goes only to self.fileHandler, because
         # at this point self.emailHandler and consoleHandler are intentionally not yet
@@ -518,34 +511,33 @@ class CmdHelper:
         info('')
         if self.options.logseparator:
             info(self.options.logseparator)
-        #info('%s %s' % (time.asctime(), cmdLine()))
         info(cmdLine())
         info('')
 
         # Configure logging to e-mail
-        if getattr(self.options,'emailto',None):
+        if getattr(self.options, 'emailto', None):
             hostname = socket.gethostname()
-            fromAddr = '%s@%s' % (getpass.getuser(),hostname)
+            fromAddr = '%s@%s' % (getpass.getuser(), hostname)
             if self.options.emailsubject:
                 subject = self.options.emailsubject
             else:
-                subject = 'Report from %s (%s)' % (cmdLine(True),hostname)
+                subject = 'Report from %s (%s)' % (cmdLine(True), hostname)
             if self.options.emailtriglevel is not None:
                 try:
                     triggerLevelNo = getLogLevelNo(self.options.emailtriglevel)
-                except:
+                except Exception:
                     triggerLevelNo = None
                     error('illegal email trigger level %s' % self.options.emailtriglevel)
             else:
                 triggerLevelNo = None
-            self.emailHandler = BufferingSMTPHandler(fromAddr,self.options.emailto,subject,
+            self.emailHandler = BufferingSMTPHandler(fromAddr, self.options.emailto, subject,
                                                      triggerLevelNo=triggerLevelNo)
             self.emailHandler.setFormatter(ConsoleFormatter())
             self.emailHandler.setLevel(logging.WARNING)
             self.logger.addHandler(self.emailHandler)
             try:
                 self.emailHandler.setLevel(getLogLevelNo(self.options.emaillevel))
-            except:
+            except Exception:
                 self.emailHandler.setLevel(logging.WARNING)
                 error('illegal emaillevel %s', self.options.emaillevel)
 
@@ -570,7 +562,7 @@ class CmdHelper:
         if self.parseTool == 'argparse':
             return self.options
         else:
-            return (self.options, self.args)
+            return self.options, self.args
 
 
 def cmdLine(useBasename=False):
@@ -629,8 +621,8 @@ def confirm(msg, acceptByDefault=False, exitCodeOnAbort=1, batch=False):
     else:
         msg += ' - are you sure [n] ? '
     while True:
-        reply = raw_input(msg).lower()
-        print
+        reply = input(msg).lower()
+        print()
         if reply == '':
             reply = 'y' if acceptByDefault else 'n'
         if reply == 'y':
@@ -642,7 +634,7 @@ def confirm(msg, acceptByDefault=False, exitCodeOnAbort=1, batch=False):
                 error('Program execution aborted by user')
                 sys.exit(exitCodeOnAbort)
         else:
-            print "ERROR: Invalid reply - please enter either 'y' or 'n', or press just enter to accept default\n"
+            print("ERROR: Invalid reply - please enter either 'y' or 'n', or press just enter to accept default\n")
 
 
 def run(cmd, printOutput=False,
@@ -691,16 +683,16 @@ def run(cmd, printOutput=False,
     """
     if dryrun:
         debug('would run cmd: %s' % cmd)
-        return (0, '', None)
+        return 0, '', None
     debug('running cmd: %s' % cmd)
     outputBuffer = []
-    interactive =  os.environ.get('PYTHONINSPECT',None)
+    interactive = os.environ.get('PYTHONINSPECT', None)
     if interactive:
         del os.environ['PYTHONINSPECT']
     p = subprocess.Popen(cmd,
                          stdout=subprocess.PIPE,
                          stderr=subprocess.STDOUT,
-                         shell=isinstance(cmd, (str,unicode)),
+                         shell=isinstance(cmd, str),
                          universal_newlines=True)
     if interactive:
         os.environ['PYTHONINSPECT'] = interactive
@@ -721,13 +713,13 @@ def run(cmd, printOutput=False,
     else:
         parsedOutput = None
     if printOutputIfParsed and parsedOutput and not printOutput:
-        print output
+        print(output)
     if printErrorsIfParsed and parsedOutput:
-        for l in parsedOutput.strip().split('\n'):
-            error('found in command output: %s' % l)
+        for outputLine in parsedOutput.strip().split('\n'):
+            error('found in command output: %s' % outputLine)
     if exceptionIfParsed and parsedOutput:
         raise Exception('Errors found in command output - please check')
-    return (status, output, parsedOutput)
+    return status, output, parsedOutput
 
 
 def abort(errorMsg, exitCode=1):
@@ -745,7 +737,7 @@ def enableHistory(historyPath):
         return
     historyPath = os.path.expanduser(historyPath)
     if os.path.isdir(historyPath):
-        error('enableHistory requires path to file, not directory %s',historyPath)
+        error('enableHistory requires path to file, not directory %s', historyPath)
         return
     try:
         import readline
@@ -755,11 +747,11 @@ def enableHistory(historyPath):
         import rlcompleter
         import atexit
 
-        def save_history(historyPath=historyPath):
+        def save_history(histPath=historyPath):
             import readline
             try:
-                readline.write_history_file(historyPath)
-            except:
+                readline.write_history_file(histPath)
+            except Exception:
                 pass
 
         if os.path.exists(historyPath):
@@ -778,10 +770,10 @@ def enableHistory(historyPath):
 if __name__ == '__main__':
     cmdHelper = CmdHelper('argparse', __version__, 'Just an example', hasBatch=True, hasDryRun=True)
     cmdHelper.add_option('-x', '--example', dest='value', default=None, help='sample option')
-    #(options, cmdargs) = c.parse()  # for optparse
-    cmdargs = cmdHelper.parse() # for argparse
+    # (options, cmdargs) = c.parse()  # for optparse
+    cmdargs = cmdHelper.parse()  # for argparse
     debug("OK, let's start debugging")
     info('here we go')
-    print 'Hello, world!'
+    print('Hello, world!')
     confirm('Testing')
-    warning('note - missing newline; reply is not logged')
+    warning('this is a final warning')

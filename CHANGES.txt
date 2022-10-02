@@ -1,3 +1,21 @@
+v0.3.0
+- support both Python 2.7 and Python 3.x
+- some code cleanup
+
+v0.2.11
+- add utility to enable history for interactive use with -i option
+
+v0.2.10
+v0.2.9
+- fix issue with logging messages with non-ASCII characters when redirecting output or logging to files
+
+v0.2.8
+- add abort utility to abort program after issuing error message
+
+v0.2.7
+- add example.py
+- misc internal improvements
+
 v0.2.6
 - reset PYTHONINSPECT before invoking subprocess in run() so python commands terminate properly
 
