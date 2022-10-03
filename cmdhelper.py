@@ -25,10 +25,13 @@ Typical usage:
     except Exception as e:
          handleError(e,options.debug)
 """
+
+# Python 2/3 compatibility
 from __future__ import print_function
 from builtins import input
 from builtins import str
 from builtins import range
+
 __author__ = 'Juerg Beringer'
 __version__ = '0.3.0'
 
