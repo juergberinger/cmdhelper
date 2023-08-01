@@ -311,7 +311,7 @@ class CmdHelper:
 
     """CmdHelper class to setup option parsing and logging.
 
-    The constructs accepts the following parameters:
+    The constructor accepts the following parameters:
 
     parseTool          Must be present, and must be either 'optparse'
                        or 'argparse' for using optparse.OptionParser
@@ -339,6 +339,8 @@ class CmdHelper:
 
     hasDryRun          Whether to add --dryrun option.
 
+    hasCommit          Whether to add --commit option.
+
     logFile            Default log file.
 
     logSeparator       Default string to separate logs from different
@@ -354,7 +356,7 @@ class CmdHelper:
     def __init__(self, parseTool, version=None,
                  description=None, epilog=None,
                  redirectStdOut=True, separateStdErr=True, hasLogFile=True, hasEmail=True,
-                 hasInteractive=True, hasBatch=False, hasDryRun=False,
+                 hasInteractive=True, hasBatch=False, hasDryRun=False, hasCommit=False,
                  logFile='', logSeparator=None, logTimestampFmt=None):
         if parseTool not in ('optparse', 'argparse'):
             raise ValueError('parseTool must be either "optparse" or "argparse"')
@@ -368,6 +370,7 @@ class CmdHelper:
         self.hasInteractive = hasInteractive
         self.hasBatch = hasBatch
         self.hasDryRun = hasDryRun
+        self.hasCommit = hasCommit
         self.logFile = logFile
         self.logSeparator = logSeparator
         self.logTimestampFmt = logTimestampFmt
@@ -403,6 +406,10 @@ class CmdHelper:
             self.add_option('', '--dryrun', dest='dryrun',
                             action='store_true', default=False,
                             help='only show what would be done without --dryrun')
+        if hasCommit:
+            self.add_option('', '--commit', dest='commit',
+                            action='store_true', default=False,
+                            help='commit changes rather than showing only what would be done')
         if hasBatch:
             self.add_option('', '--batch', dest='batch',
                             action='store_true', default=False,
