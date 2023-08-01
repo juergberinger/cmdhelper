@@ -7,7 +7,7 @@ def read(fname):
 
 setup(
     name = 'cmdhelper',
-    version = '0.3.0',
+    version = '0.3.1',
     description = 'Python utility for writing command line scripts with consistent look and feel.',
     long_description = read('README.rst'),
     url = 'https://github.com/juergberinger/cmdhelper',

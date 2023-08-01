@@ -33,7 +33,7 @@ from builtins import str
 from builtins import range
 
 __author__ = 'Juerg Beringer'
-__version__ = '0.3.0'
+__version__ = '0.3.1'
 
 __all__ = ['CmdHelper', 'CmdError', 'cmdLine', 'handleError',
            'debug', 'warning', 'info', 'error', 'critical',
