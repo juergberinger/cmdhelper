@@ -26,11 +26,11 @@ test-upload:
 	@firefox https://test.pypi.org/project/$(PKGNAME)/
 
 upload:
-	@python setup.py sdist upload -r pypi
-	@echo ''
+#	@python setup.py sdist upload -r pypi
+#	@echo ''
 	@echo 'Testing installation from PyPI ...'
 	@virtualenv --clear test
-	@. test/bin/activate; cd test; pip install $(PKGNAME); pip show $(PKGNAME); python -c 'import $(PKGNAME); print "\nFound version",$(PKGNAME).__version__)'
+	@. test/bin/activate; cd test; pip install $(PKGNAME); pip show $(PKGNAME); python -c 'import $(PKGNAME); print("\nFound version",$(PKGNAME).__version__)'
 	@rm -rf test
 	@firefox https://pypi.org/project/$(PKGNAME)/
 
