@@ -272,7 +272,7 @@ class FileFormatter(logging.Formatter):
         #       unless we manually keep track of when a new line starts.
         if self.timestampFmt:
             if record.levelno == logging.STDOUT:
-                self._fmt = self.timestampFmt
+                self._style._fmt = self.timestampFmt
                 timeStamp = logging.Formatter.format(self, record)
                 lines = record.getMessage().split('\n')
                 if self._startLine:
@@ -285,19 +285,19 @@ class FileFormatter(logging.Formatter):
                 self._startLine = (msg[-1:] == '\n')
                 return msg
             else:
-                self._fmt = self.timestampFmt + '%(message)s'
+                self._style._fmt = self.timestampFmt + '%(message)s'
                 self._startLine = True
                 return logging.Formatter.format(self, record)
         else:
             # The code below assumes that redirected stdout always comes from
             # the root logger
             if record.name != 'root':
-                self._fmt = '%(levelname)s:%(name)s: %(message)s'
+                self._style._fmt = '%(levelname)s:%(name)s: %(message)s'
             else:
                 if record.levelno > logging.STDOUT or record.levelno == logging.DEBUG:
-                    self._fmt = '%(levelname)s: %(message)s'
+                    self._style._fmt = '%(levelname)s: %(message)s'
                 else:
-                    self._fmt = '%(message)s'
+                    self._style._fmt = '%(message)s'
             return logging.Formatter.format(self, record)
 
 
