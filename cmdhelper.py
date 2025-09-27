@@ -15,7 +15,7 @@ Typical usage:
     options = cmdHelper.parse()
 
     debug('start processing')
-    print 'Normal output'
+    print('Normal output')
     info('more details for verbose mode')
 
     try:
@@ -26,14 +26,8 @@ Typical usage:
          handleError(e,options.debug)
 """
 
-# Python 2/3 compatibility
-from __future__ import print_function
-from builtins import input
-from builtins import str
-from builtins import range
-
 __author__ = 'Juerg Beringer'
-__version__ = '0.3.1'
+__version__ = '0.4.0'
 
 __all__ = ['CmdHelper', 'CmdError', 'cmdLine', 'handleError',
            'debug', 'warning', 'info', 'error', 'critical',
@@ -143,19 +137,7 @@ class MyStreamHandler(logging.StreamHandler):
            newline will be written to the output stream."""
         try:
             msg = self.format(record)
-            if sys.version_info.major == 2:
-                # Python 2 fix for UnicodeEncodeError in case of unicode characters in log messages
-                if isinstance(msg, unicode):
-                    if hasattr(self.stream, "encoding") and self.stream.encoding:
-                        # Stream should take care of encoding, but do it explicitly to prevent bug in Python 2.6 - see
-                        # https://stackoverflow.com/questions/8016236/python-unicode-handling-differences-between-print-and-sys-stdout-write
-                        self.stream.write(msg.encode(self.stream.encoding))
-                    else:
-                        self.stream.write(msg.encode(encoding))
-                else:
-                    self.stream.write(msg)
-            else:
-                self.stream.write(msg)
+            self.stream.write(msg)
             terminator = getattr(record, 'terminator', '\n')
             if terminator is not None:
                 self.stream.write(terminator)
@@ -168,7 +150,7 @@ class MyStreamHandler(logging.StreamHandler):
     def flush(self):
         """Flush the stream.
 
-        In contrast to StreamHandler, errors are not caught so the program doesn't iterate
+        In contrast to StreamHandler, errors are not caught, so the program doesn't iterate
         through tons of logging errors e.g. in case of a broken pipe."""
         # See /usr/lib64/python2.7/logging/__init__.py, StreamHander.flush()
         self.acquire()
@@ -235,7 +217,7 @@ class BufferingSMTPHandler(logging.handlers.BufferingHandler):
 class ConsoleFormatter(logging.Formatter):
 
     """Logging formatter used for console output: prepends the log level for WARNING
-       and higher levels, prepends '... ' for DEBUG and shows message otherwise."""
+       and higher levels, prepends '... ' for DEBUG, and shows message otherwise."""
 
     def format(self, record):
         # The code below assumes that redirected stdout always comes from
@@ -356,13 +338,13 @@ class CmdHelper:
     logFile            Default log file.
 
     logSeparator       Default string to separate logs from different
-                       invocation of the script.
+                        invocations of the script.
 
     logTimestampFmt    Default time stamp format.
 
     User arguments (argparse only) and options can be defined
     by either directly calling the OptionParser or ArgumentParser
-    object via CmdHelper.parser, or using the utility methods
+    object via CmdHelper.parser, or by using the utility methods
     CmdHelper.add_option and CmdHelper.add_argument."""
 
     def __init__(self, parseTool, version=None,
@@ -492,7 +474,7 @@ class CmdHelper:
     def parse(self):
         """Parse options and handle defaults.
 
-        When using OptionParser, returns tuple (options,args) of
+        When using OptionParser, returns tuple (options, args) of
         options and list of non-option command line arguments. When
         using ArgumentParser, returns Namespace object containing both
         options and arguments. In other words, parse() returns the
@@ -631,7 +613,7 @@ def confirm(msg, acceptByDefault=False, exitCodeOnAbort=1, batch=False):
     (if user declines and exitCodeOnAbort is not None).
 
     Depending on acceptByDefault, the default answer (if user presses
-    Return only), is to accept or abort.  " - are you sure [y] ?" or "
+    Return only) is to accept or abort.  " - are you sure [y] ?" or "
     - are you sure [n] ?" will be appended to msg, depending on the
     value of acceptByDefault.
 
@@ -700,7 +682,7 @@ def run(cmd, printOutput=False,
     exceptionIfParsed    Specifies if an Exception should be raised if
                          parseForRegEx finds any matches.
 
-    dryrun               If set True, cmd is only logged to debug and
+    dryrun               If set True, cmd is only logged to debug, and
                          nothing is run. Returns (0,'',None) in this case.
     """
     if dryrun:
