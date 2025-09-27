@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cmdhelper"
+version = "0.4.0"
+description = "Python utility for writing command line scripts with consistent look and feel."
+readme = { file = "README.md", content-type = "text/markdown" }
+license = { file = "LICENSE" }
+authors = [
+  { name = "Juerg Beringer", email = "juerg.beringer@gmail.com" },
+]
+keywords = ["command line utility", "scripts"]
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Topic :: System :: Shells",
+  "Topic :: Utilities",
+]
+
+[project.urls]
+Homepage = "https://github.com/juergberinger/cmdhelper"
+
+[tool.setuptools]
+py-modules = ["cmdhelper"]
+include-package-data = true
