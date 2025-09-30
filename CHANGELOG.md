@@ -2,10 +2,12 @@
 
 ## v0.4.0
 - remove Python 2.7 support, now requiring Python 3.6 or later
-- bug fix for logging.Formatter change from _fmt to _style._fmt
+- bug fix for logging.Formatter change from _fmt to _style._fmt (thanks to Matt Kramer)
 - convert README and CHANGLOG files to Markdown
 - add .gitignore file
 - update Makefile and switch to twine for uploading to PyPI
+- add uv lock file
+- update history handling in interactive Python to use new REPL in Python 3.13
 
 ## v0.3.1
 - add --commit option as an orthogonal alternative to --dryrun

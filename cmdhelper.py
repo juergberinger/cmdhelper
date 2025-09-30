@@ -489,7 +489,9 @@ class CmdHelper:
         try:
             if self.options.interactive:
                 os.environ['PYTHONINSPECT'] = '1'
-                enableHistory(self.historyPath)
+                if ((sys.version_info.major==3 and sys.version_info.minor<13) or
+                    os.environ.get('PYTHON_BASIC_REPL')) is not None:
+                    enableHistory(self.historyPath)
         except AttributeError:
             pass
 
@@ -736,7 +738,14 @@ def enableHistory(historyPath):
     """Enable history for interactive execution with -i option.
     
     If historyPath is None, disable history and editing.
-    The code below is adapted from /etc/pythonstart on OpenSuSE Leap 42.3."""
+    The code below is adapted from /etc/pythonstart on OpenSuSE Leap 42.3.
+
+    NOTE: This function doesn't work in Python 3.13 unless the new REPL is disabled by setting PYTHON_BASIC_REPL.
+    """
+    if ((sys.version_info.major == 3 and sys.version_info.minor >= 13) and
+        os.environ.get('PYTHON_BASIC_REPL')) is None:
+        warning('enableHistory not supported with new Python REPL - set PYTHON_BASIC_REPL to use old REPL')
+        return
     if not historyPath:
         return
     historyPath = os.path.expanduser(historyPath)
@@ -759,8 +768,9 @@ def enableHistory(historyPath):
                 pass
 
         if os.path.exists(historyPath):
-            readline.set_history_length(10000)
+            print('reading history from %s' % historyPath)
             readline.read_history_file(historyPath)
+            #readline.set_history_length(10000)
 
         atexit.register(save_history)
         readline.parse_and_bind('tab: complete')
