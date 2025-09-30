@@ -21,7 +21,8 @@ test-upload: build
 	@echo 'Uploading to TEST PyPI ...'
 	@twine upload --repository cmdhelper-test dist/*$(CURRENTVERSION)*
 	@echo ''
-	@echo 'Testing installation from test PyPI ...'
+	@echo 'Testing installation from test PyPI (waiting 10s for index to update) ...'
+	@sleep 10
 	@python3 -m venv --clear dist_test
 	@. dist_test/bin/activate; cd dist_test; python -m pip install -i https://test.pypi.org/simple  --extra-index-url https://pypi.org/simple $(PKGNAME); python -m pip show $(PKGNAME); python -c 'import $(PKGNAME); print("\nFound version",$(PKGNAME).__version__)'
 	@rm -rf dist_test
@@ -32,7 +33,8 @@ upload: build
 	@echo 'Uploading to PyPI ...'
 	@twine upload --repository cmdhelper-pypi dist/*$(CURRENTVERSION)*
 	@echo ''
-	@echo 'Testing installation from PyPI ...'
+	@echo 'Testing installation from PyPI (waiting 10s for index to update) ...'
+	@sleep 10
 	@python3 -m venv --clear dist_test
 	@. dist_test/bin/activate; cd dist_test; python -m pip install $(PKGNAME); python -m pip show $(PKGNAME); python -c 'import $(PKGNAME); print("\nFound version",$(PKGNAME).__version__)'
 	@rm -rf dist_test
