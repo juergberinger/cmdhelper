@@ -12,7 +12,7 @@ options = cmdHelper.parse()
 
 try:
     # processing goes here
-    run('python -c "print 2"',True)
+    run('python -c "print(2)"',True)
     pass    
 
 except Exception as e:
