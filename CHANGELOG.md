@@ -3,7 +3,7 @@
 ## v0.4.0
 - remove Python 2.7 support, now requiring Python 3.6 or later
 - bug fix for logging.Formatter change from _fmt to _style._fmt (thanks to Matt Kramer)
-- convert README and CHANGLOG files to Markdown
+- convert README and CHANGELOG files to Markdown
 - add .gitignore file
 - update Makefile and switch to twine for uploading to PyPI
 - add uv lock file
