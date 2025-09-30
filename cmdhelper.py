@@ -207,8 +207,7 @@ class BufferingSMTPHandler(logging.handlers.BufferingHandler):
             msg['From'] = self.fromAddr
             msg['To'] = self.toAddr
             msg['Subject'] = self.subject
-            # print 'BufferingSMTPHandler'
-            # print msg.as_string()
+            # print(msg.as_string())
             smtp = smtplib.SMTP('localhost')
             smtp.send_message(msg)
             smtp.quit()
@@ -386,7 +385,7 @@ class CmdHelper:
             self.add_argument('--version', action='version', version=version)
         else:
             import optparse
-            self.parser = optparse.OptionParser(usage=description, version=version)
+            self.parser = optparse.OptionParser(usage=description, version=version, epilog=epilog)
         if hasInteractive:
             self.add_option('-i', '--interactive', dest='interactive',
                             action='store_true', default=False,
