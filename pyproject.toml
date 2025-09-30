@@ -5,6 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "cmdhelper"
 version = "0.4.0"
+requires-python = ">=3.6"
 description = "Python utility for writing command line scripts with consistent look and feel."
 readme = { file = "README.md", content-type = "text/markdown" }
 license = "MIT"

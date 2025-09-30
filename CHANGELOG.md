@@ -1,10 +1,11 @@
 # Release history (latest release first)
 
 ## v0.4.0
-- remove Python 2.7 support
+- remove Python 2.7 support, now requiring Python 3.6 or later
 - bug fix for logging.Formatter change from _fmt to _style._fmt
 - convert README and CHANGLOG files to Markdown
 - add .gitignore file
+- update Makefile and switch to twine for uploading to PyPI
 
 ## v0.3.1
 - add --commit option as an orthogonal alternative to --dryrun
