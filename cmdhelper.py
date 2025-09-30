@@ -42,7 +42,7 @@ import re
 import logging
 from logging import debug, info, warning, error, critical
 import smtplib
-from email.mime.text import MIMEText
+from email.message import EmailMessage
 
 
 #
@@ -202,14 +202,15 @@ class BufferingSMTPHandler(logging.handlers.BufferingHandler):
                     text.append(s + terminator)
                 else:
                     text.append(s)
-            msg = MIMEText(''.join(text))
+            msg = EmailMessage()
+            msg.set_content(''.join(text))
             msg['From'] = self.fromAddr
             msg['To'] = self.toAddr
             msg['Subject'] = self.subject
             # print 'BufferingSMTPHandler'
             # print msg.as_string()
             smtp = smtplib.SMTP('localhost')
-            smtp.sendmail(self.fromAddr, [self.toAddr], msg.as_string())
+            smtp.send_message(msg)
             smtp.quit()
         self.buffer = []
 
@@ -427,7 +428,7 @@ class CmdHelper:
 
         if hasEmail:
             self.add_option('', '--emailto', dest='emailto', default=None,
-                            help='email address receiving any log messages')
+                            help='comma-separated email addresses receiving any log messages')
             self.add_option('', '--emailsubject', dest='emailsubject', default=None,
                             help='subject for log e-mails')
             self.add_option('', '--emaillevel', dest='emaillevel',

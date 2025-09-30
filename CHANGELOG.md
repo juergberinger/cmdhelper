@@ -8,6 +8,7 @@
 - update Makefile and switch to twine for uploading to PyPI
 - add uv lock file
 - update history handling in interactive Python to use new REPL in Python 3.13
+- enable e-mailing to multiple recipients
 
 ## v0.3.1
 - add --commit option as an orthogonal alternative to --dryrun
